@@ -3,11 +3,11 @@ name: test_notebooks
 on: [push, pull_request]
 
 jobs:
-  formatting:
+  run_notebooks:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.9"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,12 +19,14 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ runner.os }}-${{ matrix.python-version }}-bazel-cache
 
-      - name: Download cache
-        id: download-cache
+      - name: Notebooks cache
+        id: notebooks-cache
         uses: actions/cache@v3
         with:
           path: ./examples/tutorials/tmp
-          key: ${{ runner.os }}-download-cache
+          key: ${{ runner.os }}-notebooks-${{ hashFiles('./examples/tutorials/*.ipynb') }}
+          restore-keys: |
+            ${{ runner.os }}-notebooks-
 
       - name: Install poetry
         run: pipx install poetry
